@@ -20,26 +20,6 @@ from dateutil.relativedelta import relativedelta
 # Facebook URL to scrape
 FACEBOOK_URL = "https://www.facebook.com/alltrails"
 
-def main():
-    print("Starting Facebook scraper...")
-    promotion_found, promotions, latest_post = scrape_facebook()
-    
-    if promotion_found:
-        print("Promotions found! Sending email...")
-        subject = "🎉 AllTrails Promotion Found!"
-        body = "The following promotions were found:\n\n"
-        for promo in promotions:
-            body += f"Date: {promo['date']}\n"
-            body += f"Match: {promo['match']}\n"
-            body += f"Text: {promo['text']}\n\n"
-        
-        send_email(subject, body)
-    else:
-        print("No promotions found in the most recent posts.")
-
-if __name__ == "__main__":
-    main()
-
 # Load environment variables from .env file
 load_dotenv(override=True)
 
@@ -250,7 +230,7 @@ def scrape_facebook():
         
     except Exception as e:
         print(f"Error during scraping: {str(e)}")
-        return False, []
+        return False, [], None
     finally:
         if driver:
             driver.quit()
@@ -371,34 +351,11 @@ def check_for_promotions():
         send_email(error_subject, error_body)
         print(f"Error: {str(e)}")
 
-from flask import Flask, jsonify
-import threading
-import os
-
-app = Flask(__name__)
-
-@app.route('/')
-def health_check():
-    return jsonify({"status": "healthy"})
-
-def run_scheduler():
-    while True:
-        print("Running scheduled promotion check...")
-        check_for_promotions()
-        time.sleep(3600)  # Run every hour
 
 def main():
-    print("Starting AllTrails Promotion Checker Service")
-    print("------------------------------------------")
-    
-    # Start the scheduler in a background thread
-    scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
-    scheduler_thread.start()
-    
-    # Start the web server
-    port = int(os.environ.get('PORT', 8080))
-    print(f"Starting web server on port {port}...")
-    app.run(host='0.0.0.0', port=port)
+    print("Starting AllTrails promotion check...")
+    check_for_promotions()
+    print("Check completed.")
 
 if __name__ == "__main__":
     main()
