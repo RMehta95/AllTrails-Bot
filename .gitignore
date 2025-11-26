@@ -40,5 +40,6 @@ wheels/
 .DS_Store
 Thumbs.db
 
-# Shell scripts
-*.sh
+# Shell scripts (except for safe ones)
+googlecloud.sh
+deploy.sh

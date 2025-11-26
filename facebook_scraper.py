@@ -31,10 +31,11 @@ SMTP_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 # Validate email configuration
 if not SMTP_USERNAME or not SMTP_PASSWORD:
-    print("Error: Email configuration is missing. Please check your .env file.")
+    print("Warning: Email configuration is missing. Please check your .env file.")
     print(f"EMAIL_USERNAME: {'Set' if SMTP_USERNAME else 'Not set'}")
     print(f"EMAIL_PASSWORD: {'Set' if SMTP_PASSWORD else 'Not set'}")
-    exit(1)
+    # Don't exit in Cloud Run, just continue without email
+    # exit(1)
 
 # Facebook page URL
 FACEBOOK_URL = "https://www.facebook.com/AllTrails"
