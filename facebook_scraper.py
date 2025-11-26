@@ -154,7 +154,7 @@ def scrape_facebook():
         print(f"Looking for posts since: {cutoff_date.strftime('%Y-%m-%d %H:%M:%S')}")
         
         # Look for discount patterns (e.g., 50%, 20% off, etc.)
-        discount_pattern = re.compile(r'\b\d+%\b|\b\d+%\s*discount\b', re.IGNORECASE)
+        discount_pattern = re.compile(r'\b\d+%\s*(?:off|discount)\b|\b\d+%\b', re.IGNORECASE)
         promotion_found = False
         promotion_details = []
         processed_posts = 0
@@ -194,8 +194,35 @@ def scrape_facebook():
                         # Print post text for debugging
                         print(f"\n--- Post {processed_posts + 1} ---")
                         print(f"Time: {post_time_text}")
-                        print("Content:")
+                        print("Content (before expansion):")
                         print(post.text)
+                        
+                        # Expand "See more" links if present
+                        try:
+                            # Try multiple selectors for "See more" links
+                            see_more_selectors = [
+                                ".//span[contains(text(), 'See more')]",
+                                ".//div[contains(text(), 'See more')]",
+                                ".//a[contains(text(), 'See more')]",
+                                ".//span[contains(text(), '…')]",
+                                ".//div[@role='button' and contains(text(), 'See more')]",
+                                ".//span[@class and contains(text(), 'See more')]"
+                            ]
+                            
+                            for selector in see_more_selectors:
+                                try:
+                                    see_more_link = post.find_element(By.XPATH, selector)
+                                    driver.execute_script("arguments[0].click();", see_more_link)
+                                    time.sleep(1)  # Wait for content to expand
+                                    print("Content (after expansion):")
+                                    print(post.text)
+                                    break
+                                except:
+                                    continue
+                            else:
+                                print("No 'See more' link found or couldn't expand")
+                        except Exception as e:
+                            print(f"Error expanding 'See more': {str(e)}")
                         print("-" * 40)
                         
                         # Check for promotions
