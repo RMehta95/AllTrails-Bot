@@ -17,6 +17,9 @@ import schedule
 from dateutil.parser import parse as parse_date
 from dateutil.relativedelta import relativedelta
 
+# Facebook URL to scrape
+FACEBOOK_URL = "https://www.facebook.com/alltrails"
+
 def main():
     print("Starting Facebook scraper...")
     promotion_found, promotions, latest_post = scrape_facebook()
